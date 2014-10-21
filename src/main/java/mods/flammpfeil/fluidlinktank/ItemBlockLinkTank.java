@@ -37,19 +37,6 @@ public class ItemBlockLinkTank extends ItemBlock implements IFluidContainerItem{
         return true;
     }
 
-    static public ItemStack updateDamageWithFluidId(ItemStack stack){
-
-        StorageLinkTank storage = getStorage(stack);
-
-        if(storage != null){
-            FluidStack fs = storage.getTank().getFluid();
-            if(fs != null)
-                stack.setItemDamage(fs.fluidID);
-        }
-
-        return stack;
-    }
-
     @Override
     public String getItemStackDisplayName(ItemStack par1ItemStack) {
         String name = super.getItemStackDisplayName(par1ItemStack);
@@ -168,15 +155,19 @@ public class ItemBlockLinkTank extends ItemBlock implements IFluidContainerItem{
     @Override
     public boolean onItemUseFirst(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ) {
         if(!world.isRemote){
-            updateDamageWithFluidId(stack);
-            FluidLinkTank.FluidContainerInnner inner = FluidLinkTank.fluidContainerMap.get(stack.getItemDamage());
             StorageLinkTank storage = getStorage(stack);
-            if(inner != null && storage != null){
+            if(storage != null){
                 backContainerItem = true;
-                inner.updateFluidAmount(Math.min(storage.getTank().getFluidAmount(), FluidContainerRegistry.BUCKET_VOLUME));
+                FluidStack fstack = storage.getTank().getFluid();
+
+                if(fstack != null)
+                    FluidLinkTank.fluidContainerInnner
+                            .updateFluidAmount(fstack.getFluid(),Math.min(storage.getTank().getFluidAmount(), FluidContainerRegistry.BUCKET_VOLUME));
+
                 if(hasLinkTankKey(stack)){
                     String key = getLinkTankKey(stack);
-                    inner.setLinkTankKey(key);
+                    FluidLinkTank.fluidContainerInnner
+                            .setLinkTankKey(key);
                 }
             }
 
@@ -191,11 +182,8 @@ public class ItemBlockLinkTank extends ItemBlock implements IFluidContainerItem{
                 result = block.onBlockActivated(world, x, y, z, player, side, hitX, hitY, hitZ);
             }
 
-            if(inner !=null && storage != null){
-                backContainerItem = false;
-                inner.resetFluidAmount();
-                inner.resetLinkTankKey();
-            }
+            backContainerItem = false;
+            FluidLinkTank.fluidContainerInnner.reset();
 
             return result;
         }

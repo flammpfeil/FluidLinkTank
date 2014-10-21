@@ -19,6 +19,7 @@ import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.RecipeSorter;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
 
@@ -64,7 +65,7 @@ public class FluidLinkTank {
                 .setBlockTextureName(modid+ ":" + "FluidLinkContainer")
                 .setCreativeTab(CreativeTabs.tabRedstone);
 
-        GameRegistry.registerBlock(linkTank,ItemBlockLinkTank.class,"LinkTank");
+        GameRegistry.registerBlock(linkTank, ItemBlockLinkTank.class, "LinkTank");
 
         GameRegistry.registerTileEntity(TileLinkTank.class, "flammpfeil.linktank");
     }
@@ -112,19 +113,9 @@ public class FluidLinkTank {
 
 
         ItemStack itemLinkTank = stackLinkTank.copy();
-        for(int i = 1 ;i < FluidRegistry.getMaxID(); i++){
-            ItemStack curTank = itemLinkTank.copy();
-            Fluid fluid = FluidRegistry.getFluid(i);
-
-            ItemBlockLinkTank.setFluid(curTank,fluid);
-            curTank.setItemDamage(i);
-
-            FluidContainerInnner inner = new FluidContainerInnner(new FluidStack(fluid,0),curTank);
-            fluidContainerMap.put(i,inner);
-
-            FluidContainerRegistry.registerFluidContainer(inner.getFluid(),inner.getFilled());
-
-        }
+        fluidContainerInnner = new FluidContainerInnner(new FluidStack(0,0),itemLinkTank);
+        FluidContainerRegistry.registerFluidContainer(fluidContainerInnner.getFluid(),fluidContainerInnner.getFilled());
+        fluidContainerInnner.getFilled().setItemDamage(OreDictionary.WILDCARD_VALUE-1);
     }
 
     public static class FluidContainerInnner{
@@ -143,13 +134,11 @@ public class FluidLinkTank {
             return fluid;
         }
 
-        public FluidContainerInnner updateFluidAmount(int amount){
+        public FluidContainerInnner updateFluidAmount(Fluid targetFluid, int amount){
+            this.fluid.fluidID = targetFluid.getID();
             this.fluid.amount = amount;
-            return this;
-        }
-
-        public FluidContainerInnner resetFluidAmount(){
-            this.fluid.amount = 0;
+            ItemBlockLinkTank.setFluid(this.filled,targetFluid);
+            filled.setItemDamage(0);
             return this;
         }
 
@@ -157,14 +146,17 @@ public class FluidLinkTank {
             ItemBlockLinkTank.setLinkTankKey(filled,name);
             return this;
         }
-        public FluidContainerInnner resetLinkTankKey(){
-            ItemBlockLinkTank.setFluid(filled, fluid.getFluid());
+        public FluidContainerInnner reset(){
+            this.fluid.fluidID = 0;
+            this.fluid.amount = 0;
+            filled.setTagCompound(null);
+            filled.setItemDamage(OreDictionary.WILDCARD_VALUE - 1);
             return this;
         }
 
 
     }
 
-    public static Map<Integer,FluidContainerInnner> fluidContainerMap = Maps.newHashMap();
+    public static FluidContainerInnner fluidContainerInnner = null;
 
 }
