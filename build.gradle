@@ -18,7 +18,7 @@ buildscript {
 apply plugin: 'forge'
 apply plugin: 'maven'
 
-version = "mc1.7.x-r2"
+version = "mc1.7.x-r3"
 group= "flammpfeil.fluidlinktank" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "FluidLinkTank"
 
