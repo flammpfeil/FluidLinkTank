@@ -1,6 +1,9 @@
 package mods.flammpfeil.fluidlinktank;
 
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.network.Packet;
+import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.*;
 
@@ -9,7 +12,7 @@ import net.minecraftforge.fluids.*;
  */
 public class TileLinkTank extends TileFluidHandler {
 
-    StorageLinkTank storage = null;
+    public StorageLinkTank storage = null;
     String linkTankKey = null;
     Fluid linkedFluid = null;
     protected boolean overwritable = true;
@@ -67,6 +70,12 @@ public class TileLinkTank extends TileFluidHandler {
     }
 
     @Override
+    public void validate() {
+        super.validate();
+        this.validStorage();
+    }
+
+    @Override
     public void readFromNBT(NBTTagCompound tag) {
         super.readFromNBT(tag);
 
@@ -119,5 +128,20 @@ public class TileLinkTank extends TileFluidHandler {
     public FluidStack drain(ForgeDirection from, int maxDrain, boolean doDrain) {
         validStorage();
         return super.drain(from, maxDrain, doDrain);
+    }
+
+    @Override
+    public Packet getDescriptionPacket() {
+        NBTTagCompound nbttagcompound = new NBTTagCompound();
+        this.writeToNBT(nbttagcompound);
+        return new S35PacketUpdateTileEntity(this.xCoord, this.yCoord, this.zCoord, 1, nbttagcompound);
+    }
+
+    @Override
+    public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt) {
+        super.onDataPacket(net, pkt);
+
+        this.readFromNBT(pkt.func_148857_g());
+        validStorage();
     }
 }

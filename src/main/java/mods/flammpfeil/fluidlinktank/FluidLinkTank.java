@@ -91,6 +91,9 @@ public class FluidLinkTank {
 
     @EventHandler
     public void init(FMLInitializationEvent evt){
+
+        InitProxy.proxy.initializeItemRenderer();
+
     }
 
     @EventHandler

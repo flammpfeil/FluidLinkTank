@@ -6,6 +6,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 import java.util.ArrayList;
@@ -16,6 +17,32 @@ import java.util.ArrayList;
 public class BlockLinkTank extends BlockContainer {
     protected BlockLinkTank(Material p_i45386_1_) {
         super(p_i45386_1_);
+        setBlockBounds(0.125F, 0.0F, 0.125F, 0.875F, 1.0F, 0.875F);
+    }
+
+    @Override
+    public boolean renderAsNormalBlock() {
+        return false;
+    }
+
+    @Override
+    public boolean isOpaqueCube() {
+        return false;
+    }
+
+    @Override
+    public int getLightValue(IBlockAccess world, int x, int y, int z) {
+        TileEntity tile = world.getTileEntity(x, y, z);
+
+        exit: if(tile instanceof TileLinkTank) {
+            TileLinkTank tank = (TileLinkTank)tile;
+            if(tank.storage == null) break exit;
+            if(tank.storage.getTank().getFluid() == null) break exit;
+
+            return tank.storage.getTank().getFluid().getFluid().getLuminosity();
+        }
+
+        return super.getLightValue(world, x, y, z);
     }
 
     @Override
