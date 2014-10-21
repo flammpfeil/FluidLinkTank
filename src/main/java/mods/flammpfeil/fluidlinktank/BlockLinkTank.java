@@ -58,6 +58,9 @@ public class BlockLinkTank extends BlockContainer {
         exit: if(stack != null){
             if(stack.getItem() != Items.cauldron) break exit;
 
+            if(p_149727_1_.isRemote)
+                return true;
+
             TileLinkTank tile = (TileLinkTank)p_149727_1_.getTileEntity(p_149727_2_,p_149727_3_,p_149727_4_);
 
             if(tile == null) break exit;
