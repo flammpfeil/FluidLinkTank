@@ -1,5 +1,6 @@
 package mods.flammpfeil.fluidlinktank;
 
+import com.google.common.collect.Maps;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
@@ -11,9 +12,16 @@ import net.minecraft.block.material.Material;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagString;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidContainerRegistry;
+import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
+
+import java.util.Map;
 
 @Mod(name= FluidLinkTank.modname, modid= FluidLinkTank.modid, version= FluidLinkTank.version)
 public class FluidLinkTank {
@@ -100,6 +108,62 @@ public class FluidLinkTank {
             ItemBlockLinkTank.setLinkTankKey(result, "TestB");
             GameRegistry.addRecipe(new ShapelessOreRecipe(result, result, new ItemStack(Items.gold_ingot)));
         }
+
+
+        ItemStack itemLinkTank = stackLinkTank.copy();
+        for(int i = 1 ;i < FluidRegistry.getMaxID(); i++){
+            ItemStack curTank = itemLinkTank.copy();
+            Fluid fluid = FluidRegistry.getFluid(i);
+
+            ItemBlockLinkTank.setFluid(curTank,fluid);
+            curTank.setItemDamage(i);
+
+            FluidContainerInnner inner = new FluidContainerInnner(new FluidStack(fluid,0),curTank);
+            fluidContainerMap.put(i,inner);
+
+            FluidContainerRegistry.registerFluidContainer(inner.getFluid(),inner.getFilled());
+
+        }
     }
+
+    public static class FluidContainerInnner{
+        ItemStack filled;
+        FluidStack fluid;
+
+        public FluidContainerInnner(FluidStack fluidStack, ItemStack filled){
+            this.filled = filled;
+            this.fluid = fluidStack;
+        }
+
+        public ItemStack getFilled() {
+            return filled;
+        }
+        public FluidStack getFluid() {
+            return fluid;
+        }
+
+        public FluidContainerInnner updateFluidAmount(int amount){
+            this.fluid.amount = amount;
+            return this;
+        }
+
+        public FluidContainerInnner resetFluidAmount(){
+            this.fluid.amount = 0;
+            return this;
+        }
+
+        public FluidContainerInnner setLinkTankKey(String name){
+            ItemBlockLinkTank.setLinkTankKey(filled,name);
+            return this;
+        }
+        public FluidContainerInnner resetLinkTankKey(){
+            ItemBlockLinkTank.setFluid(filled,fluid.getFluid());
+            return this;
+        }
+
+
+    }
+
+    public static Map<Integer,FluidContainerInnner> fluidContainerMap = Maps.newHashMap();
 
 }

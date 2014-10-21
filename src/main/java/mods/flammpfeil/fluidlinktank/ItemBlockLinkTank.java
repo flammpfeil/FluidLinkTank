@@ -7,7 +7,6 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagString;
-import net.minecraft.util.IIcon;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.*;
@@ -20,12 +19,32 @@ import java.util.List;
 public class ItemBlockLinkTank extends ItemBlock implements IFluidContainerItem{
     public ItemBlockLinkTank(Block p_i45328_1_) {
         super(p_i45328_1_);
+
+        setMaxStackSize(1);
+        setHasSubtypes(true);
+    }
+
+    @Override
+    public boolean getShareTag() {
+        return true;
+    }
+
+    static public ItemStack updateDamageWithFluidId(ItemStack stack){
+
+        StorageLinkTank storage = getStorage(stack);
+
+        if(storage != null){
+            FluidStack fs = storage.getTank().getFluid();
+            if(fs != null)
+                stack.setItemDamage(fs.fluidID);
+        }
+
+        return stack;
     }
 
     @Override
     public String getItemStackDisplayName(ItemStack par1ItemStack) {
         String name = super.getItemStackDisplayName(par1ItemStack);
-
 
         if(hasLinkTankKey(par1ItemStack)){
             name += ":" + getLinkTankKey(par1ItemStack);
@@ -129,7 +148,24 @@ public class ItemBlockLinkTank extends ItemBlock implements IFluidContainerItem{
             return;
 
         stack.setTagInfo(FluidLinkTank.LinkTankKeyStr,new NBTTagString(""));
-        stack.setTagInfo(FluidLinkTank.LinkedFluidStr,new NBTTagString(fluid.getName()));
+        stack.setTagInfo(FluidLinkTank.LinkedFluidStr, new NBTTagString(fluid.getName()));
+    }
+
+
+    @Override
+    public boolean onItemUseFirst(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ) {
+        updateDamageWithFluidId(stack);
+        FluidLinkTank.FluidContainerInnner inner = FluidLinkTank.fluidContainerMap.get(stack.getItemDamage());
+        StorageLinkTank storage = getStorage(stack);
+        if(inner != null && storage != null){
+            inner.updateFluidAmount(Math.min(storage.getTank().getFluidAmount(), FluidContainerRegistry.BUCKET_VOLUME));
+            if(hasLinkTankKey(stack)){
+                String key = getLinkTankKey(stack);
+                inner.setLinkTankKey(key);
+            }
+
+        }
+        return super.onItemUseFirst(stack, player, world, x, y, z, side, hitX, hitY, hitZ);
     }
 
     @Override
@@ -150,16 +186,6 @@ public class ItemBlockLinkTank extends ItemBlock implements IFluidContainerItem{
         IFluidTank tank = storage.getTank();
 
         return 1.0 - (double)tank.getFluidAmount() / (double)tank.getCapacity();
-    }
-
-    @Override
-    public IIcon getIconIndex(ItemStack stack) {
-        FluidStack targetFluid = getFluid(stack);
-
-        if(targetFluid != null)
-            return targetFluid.getFluid().getIcon();
-
-        return super.getIconIndex(stack);
     }
 
     @Override
@@ -304,6 +330,31 @@ public class ItemBlockLinkTank extends ItemBlock implements IFluidContainerItem{
             return 0;
 
         return storage.getTank().fill(resource, doFill);
+    }
+
+    @Override
+    public boolean hasContainerItem(ItemStack stack) {
+        return true;
+    }
+
+    @Override
+    public ItemStack getContainerItem(ItemStack itemStack) {
+        ItemStack stack = itemStack.copy();
+
+        if(stack.stackSize <= 0)
+            stack.stackSize = 1;
+
+        FluidStack fs = FluidContainerRegistry.getFluidForFilledItem(stack);
+
+        drain(stack, fs.amount, true);
+
+        FluidLinkTank.FluidContainerInnner inner = FluidLinkTank.fluidContainerMap.get(stack.getItemDamage());
+        if(inner !=null){
+            inner.resetFluidAmount();
+            inner.resetLinkTankKey();
+        }
+
+        return stack;
     }
 
     @Override
