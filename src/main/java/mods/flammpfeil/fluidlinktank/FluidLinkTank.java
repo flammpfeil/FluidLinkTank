@@ -19,6 +19,7 @@ import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.oredict.RecipeSorter;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
 
 import java.util.Map;
@@ -157,7 +158,7 @@ public class FluidLinkTank {
             return this;
         }
         public FluidContainerInnner resetLinkTankKey(){
-            ItemBlockLinkTank.setFluid(filled,fluid.getFluid());
+            ItemBlockLinkTank.setFluid(filled, fluid.getFluid());
             return this;
         }
 
