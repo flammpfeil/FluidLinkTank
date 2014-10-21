@@ -63,10 +63,11 @@ public class StorageLinkTank extends WorldSavedData{
     @Override
     public void readFromNBT(NBTTagCompound var1) {
         this.tank.readFromNBT(var1);
+
     }
 
     @Override
     public void writeToNBT(NBTTagCompound var1) {
-        tank.writeToNBT(var1);
+        this.tank.writeToNBT(var1);
     }
 }

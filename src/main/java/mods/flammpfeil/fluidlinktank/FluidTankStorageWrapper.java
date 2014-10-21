@@ -1,5 +1,6 @@
 package mods.flammpfeil.fluidlinktank;
 
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
 
@@ -46,5 +47,19 @@ public class FluidTankStorageWrapper extends FluidTank {
             markDirty();
 
         return result;
+    }
+
+    @Override
+    public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
+        nbt.setInteger("TankCapacity",this.getCapacity());
+        return super.writeToNBT(nbt);
+    }
+
+    @Override
+    public FluidTank readFromNBT(NBTTagCompound nbt) {
+        int cap = nbt.getInteger("TankCapacity");
+        if(cap != 0)
+            this.setCapacity(cap);
+        return super.readFromNBT(nbt);
     }
 }
