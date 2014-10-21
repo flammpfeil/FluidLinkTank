@@ -1,6 +1,5 @@
 package mods.flammpfeil.fluidlinktank;
 
-import com.google.common.collect.Maps;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
@@ -12,18 +11,14 @@ import net.minecraft.block.material.Material;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagString;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidContainerRegistry;
-import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.oredict.OreDictionary;
-import net.minecraftforge.oredict.RecipeSorter;
+import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
-
-import java.util.Map;
 
 @Mod(name= FluidLinkTank.modname, modid= FluidLinkTank.modid, version= FluidLinkTank.version)
 public class FluidLinkTank {
@@ -36,7 +31,8 @@ public class FluidLinkTank {
 
 	public static Configuration mainConfiguration;
 
-    public static int TankMaxAmount = 20000;
+    public static int TankDefaultAmount = 20000;
+    public static int TankMaxAmount = 2000000000;
 
     public static final String LinkTankKeyStr = "LinkTankKey";
     public static final String LinkedFluidStr = "LinkedFluid";
@@ -49,9 +45,12 @@ public class FluidLinkTank {
             mainConfiguration.load();
 
             {
+                Property prop = mainConfiguration.get(Configuration.CATEGORY_GENERAL,"TankDefaultAmount", TankDefaultAmount);
+                TankDefaultAmount = prop.getInt();
+            }
+            {
                 Property prop = mainConfiguration.get(Configuration.CATEGORY_GENERAL,"TankMaxAmount", TankMaxAmount);
                 TankMaxAmount = prop.getInt();
-
             }
 
         }
@@ -99,18 +98,45 @@ public class FluidLinkTank {
     {
         ItemStack stackLinkTank = new ItemStack(linkTank);
 
-        {
+        {//base Universal
             ItemStack result = stackLinkTank.copy();
-            ItemBlockLinkTank.setLinkTankKey(result, "TestA");
-            GameRegistry.addRecipe(new ShapelessOreRecipe(result, result, new ItemStack(Items.iron_ingot)));
+            GameRegistry.addRecipe(new ShapedOreRecipe(result,
+                    "XBX",
+                    "ECE",
+                    "XBX",
+                    'C',new ItemStack(Items.cauldron),
+                    'B',new ItemStack(Items.bucket),
+                    'E',new ItemStack(Items.ender_eye),
+                    'X',new ItemStack(Items.quartz)));
         }
 
-        {
-            ItemStack result = stackLinkTank.copy();
-            ItemBlockLinkTank.setLinkTankKey(result, "TestB");
-            GameRegistry.addRecipe(new ShapelessOreRecipe(result, result, new ItemStack(Items.gold_ingot)));
-        }
+        {//named
+            String[] dyes =
+                    {
+                            "Black",
+                            "Red",
+                            "Green",
+                            "Brown",
+                            "Blue",
+                            "Purple",
+                            "Cyan",
+                            "LightGray",
+                            "Gray",
+                            "Pink",
+                            "Lime",
+                            "Yellow",
+                            "LightBlue",
+                            "Magenta",
+                            "Orange",
+                            "White"
+                    };
 
+            for(String color : dyes){
+                ItemStack result = stackLinkTank.copy();
+                ItemBlockLinkTank.setLinkTankKey(result, color);
+                GameRegistry.addRecipe(new ShapelessOreRecipe(result, stackLinkTank , "paneGlass" + color));
+            }
+        }
 
         ItemStack itemLinkTank = stackLinkTank.copy();
         fluidContainerInnner = new FluidContainerInnner(new FluidStack(0,0),itemLinkTank);

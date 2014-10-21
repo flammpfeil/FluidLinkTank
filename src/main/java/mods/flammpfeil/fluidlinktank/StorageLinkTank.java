@@ -57,7 +57,7 @@ public class StorageLinkTank extends WorldSavedData{
     public StorageLinkTank(String par1Str) {
         super(par1Str);
 
-        this.tank = new FluidTankStorageWrapper(this, FluidLinkTank.TankMaxAmount);
+        this.tank = new FluidTankStorageWrapper(this, FluidLinkTank.TankDefaultAmount);
     }
 
     @Override

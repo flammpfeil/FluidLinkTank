@@ -3,6 +3,7 @@ package mods.flammpfeil.fluidlinktank;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
@@ -48,5 +49,37 @@ public class BlockLinkTank extends BlockContainer {
         }
         harvestingTile = null;
         return list;
+    }
+
+    @Override
+    public boolean onBlockActivated(World p_149727_1_, int p_149727_2_, int p_149727_3_, int p_149727_4_, EntityPlayer p_149727_5_, int p_149727_6_, float p_149727_7_, float p_149727_8_, float p_149727_9_) {
+
+        ItemStack stack = p_149727_5_.getHeldItem();
+        exit: if(stack != null){
+            if(stack.getItem() != Items.cauldron) break exit;
+
+            TileLinkTank tile = (TileLinkTank)p_149727_1_.getTileEntity(p_149727_2_,p_149727_3_,p_149727_4_);
+
+            if(tile == null) break exit;
+            if(tile.storage == null)break exit;
+
+            int capa = tile.storage.getTank().getCapacity();
+
+            int newCapa = capa + FluidLinkTank.TankDefaultAmount;
+            newCapa = Math.min(newCapa,FluidLinkTank.TankMaxAmount);
+
+            if(capa == newCapa)
+                break exit;
+
+            tile.storage.getTank().setCapacity(newCapa);
+            p_149727_1_.playSoundAtEntity(p_149727_5_, "mob.blaze.hit", 1.0F, 1.0F);
+
+            if (!p_149727_5_.capabilities.isCreativeMode) {
+                p_149727_5_.inventory.setInventorySlotContents(p_149727_5_.inventory.currentItem, null);
+            }
+            return true;
+        }
+
+        return super.onBlockActivated(p_149727_1_, p_149727_2_, p_149727_3_, p_149727_4_, p_149727_5_, p_149727_6_, p_149727_7_, p_149727_8_, p_149727_9_);
     }
 }

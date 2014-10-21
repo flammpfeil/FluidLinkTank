@@ -1,18 +1,14 @@
 package mods.flammpfeil.fluidlinktank;
 
-import cpw.mods.fml.common.eventhandler.Event;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagByte;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagString;
-import net.minecraft.network.play.server.S23PacketBlockChange;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.*;
@@ -162,7 +158,7 @@ public class ItemBlockLinkTank extends ItemBlock implements IFluidContainerItem{
 
                 if(fstack != null)
                     FluidLinkTank.fluidContainerInnner
-                            .updateFluidAmount(fstack.getFluid(),Math.min(storage.getTank().getFluidAmount(), FluidContainerRegistry.BUCKET_VOLUME));
+                            .updateFluidAmount(fstack.getFluid(), Math.min(storage.getTank().getFluidAmount(), FluidContainerRegistry.BUCKET_VOLUME));
 
                 if(hasLinkTankKey(stack)){
                     String key = getLinkTankKey(stack);
@@ -451,7 +447,7 @@ public class ItemBlockLinkTank extends ItemBlock implements IFluidContainerItem{
 
     @Override
     public int getCapacity(ItemStack container) {
-        return FluidLinkTank.TankMaxAmount;
+        return FluidLinkTank.TankDefaultAmount;
     }
 
     @Override
@@ -525,7 +521,7 @@ public class ItemBlockLinkTank extends ItemBlock implements IFluidContainerItem{
                 par3List.add("Fluid : " + fluid.getFluid().getLocalizedName());
 
                 if(storage != null){
-                    par3List.add("Amount : " + storage.getTank().getFluidAmount() + "mb");
+                    par3List.add("Amount : " + storage.getTank().getFluidAmount() + "/" + storage.getTank().getCapacity() + "mb");
                 }
             }
         }
