@@ -15,6 +15,7 @@ import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidContainerRegistry;
+import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapedOreRecipe;
@@ -142,7 +143,7 @@ public class FluidLinkTank {
         }
 
         ItemStack itemLinkTank = stackLinkTank.copy();
-        fluidContainerInnner = new FluidContainerInnner(new FluidStack(0,0),itemLinkTank);
+        fluidContainerInnner = new FluidContainerInnner(new FluidStack(FluidRegistry.WATER,0),itemLinkTank);
         FluidContainerRegistry.registerFluidContainer(fluidContainerInnner.getFluid(),fluidContainerInnner.getFilled());
         fluidContainerInnner.getFilled().setItemDamage(OreDictionary.WILDCARD_VALUE-1);
     }
